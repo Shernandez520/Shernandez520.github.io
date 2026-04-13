@@ -1,7 +1,6 @@
 """
 Sheila's Automated Job Hunter
-Searches multiple job boards daily and emails a curated digest.
-Sources: Indeed, ZipRecruiter, SimplyHired, Upwork, USAJobs
+Sources: Indeed (via Claude MCP) + USAJobs API
 """
 
 import os
@@ -11,31 +10,14 @@ import time
 import smtplib
 import urllib.request
 import urllib.parse
-import xml.etree.ElementTree as ET
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-# ── CONFIG ────────────────────────────────────────────────────────────────────
 ANTHROPIC_API_KEY  = os.environ["ANTHROPIC_API_KEY"]
 GMAIL_ADDRESS      = os.environ["GMAIL_ADDRESS"]
 GMAIL_APP_PASSWORD = os.environ["GMAIL_APP_PASSWORD"]
 TO_EMAIL           = "shernandez520@gmail.com"
-
-SEARCH_QUERIES = [
-    "production artist",
-    "creative operations",
-    "workflow automation",
-    "implementation analyst",
-    "print production",
-    "creative ops",
-    "process automation",
-    "graphic production artist",
-    "automation specialist",
-    "creative project manager",
-    "art operations",
-    "production coordinator",
-]
 
 PROFILE = """
 Sheila Hernandez — Candidate Profile:
@@ -47,121 +29,143 @@ Sheila Hernandez — Candidate Profile:
 - Built FINALIZER — internal batch automation suite at national distributor
 - Tools: Adobe Illustrator, Photoshop, InDesign, CorelDRAW, NetSuite, Streamlit, GitHub
 - 5/5 performance review (Exceptional), April 2026
-- Looking for: contract, full-time, OR temp-to-permanent remote work, $55/hr contract or $55-75k+ salary
+- Looking for: contract, full-time, OR temp-to-permanent remote work
+- $55/hr contract or $55-75k+ salary full time
 - Open to within 20 miles of Bradenton FL (34209) or fully remote
 - Available immediately. Temp-to-perm and direct hire welcome.
 """
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"}
+SEARCH_QUERIES = [
+    "production artist",
+    "creative operations specialist",
+    "workflow automation",
+    "implementation analyst",
+    "creative ops",
+    "print production",
+    "process automation specialist",
+    "graphic production",
+]
 
 
-# ── RSS HELPER ────────────────────────────────────────────────────────────────
-def fetch_rss(url: str, source: str) -> list[dict]:
-    """Generic RSS fetcher — returns list of job dicts."""
+# ── INDEED VIA CLAUDE MCP ─────────────────────────────────────────────────────
+def search_indeed_via_claude() -> list[dict]:
+    """Use Claude with Indeed MCP to search for jobs."""
+    queries_str = "\n".join([f"- {q}" for q in SEARCH_QUERIES])
+
+    prompt = f"""Search Indeed for current job listings matching these searches:
+{queries_str}
+
+For each search, find remote jobs OR jobs within 20 miles of Bradenton FL 34209.
+Look for contract, full-time, and temp-to-perm roles.
+
+Return a JSON array of the best matching jobs you find. Include up to 20 total.
+For each job return:
+{{
+  "title": "job title",
+  "company": "company name",
+  "location": "location",
+  "url": "application URL",
+  "description": "brief description under 200 words",
+  "job_type": "contract/full-time/temp"
+}}
+
+Return ONLY valid JSON, no markdown fences, no explanation."""
+
     try:
-        req = urllib.request.Request(url, headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=12) as r:
-            content = r.read().decode("utf-8", errors="replace")
-        root = ET.fromstring(content)
-        jobs = []
-        for item in root.findall(".//item")[:6]:
-            title = item.findtext("title", "")
-            link  = item.findtext("link", "") or item.findtext("guid", "")
-            desc  = item.findtext("description", "")
-            clean = re.sub(r"<[^>]+>", " ", desc).strip()
-            clean = re.sub(r"\s+", " ", clean)[:400]
-            if title and link:
-                jobs.append({"title": title, "link": link, "description": clean, "source": source})
-        return jobs
+        data = json.dumps({
+            "model": "claude-sonnet-4-20250514",
+            "max_tokens": 4000,
+            "messages": [{"role": "user", "content": prompt}],
+            "mcp_servers": [
+                {
+                    "type": "url",
+                    "url": "https://mcp.indeed.com/claude/mcp",
+                    "name": "indeed-mcp"
+                }
+            ]
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            data=data,
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+                "anthropic-beta": "mcp-client-2025-04-04"
+            }
+        )
+
+        with urllib.request.urlopen(req, timeout=60) as r:
+            result = json.loads(r.read().decode("utf-8"))
+
+        # Extract text from response blocks
+        text_blocks = [b["text"] for b in result.get("content", []) if b.get("type") == "text"]
+        raw = " ".join(text_blocks).strip()
+        raw = re.sub(r"^```json\s*|```\s*$", "", raw, flags=re.MULTILINE).strip()
+
+        # Find JSON array in response
+        match = re.search(r'\[.*\]', raw, re.DOTALL)
+        if match:
+            jobs = json.loads(match.group())
+            for j in jobs:
+                j["source"] = "Indeed"
+            print(f"Indeed MCP returned {len(jobs)} jobs")
+            return jobs
+        else:
+            print(f"Indeed MCP: no JSON array found in response")
+            return []
+
     except Exception as e:
-        print(f"[{source}] fetch failed: {e}")
+        print(f"Indeed MCP search failed: {e}")
         return []
 
 
-# ── SOURCE: INDEED ────────────────────────────────────────────────────────────
-def search_indeed(query: str, location: str = "remote") -> list[dict]:
-    eq = urllib.parse.quote(query)
-    el = urllib.parse.quote(location)
-    url = f"https://www.indeed.com/rss?q={eq}&l={el}&radius=20&sort=date"
-    return fetch_rss(url, "Indeed")
-
-
-# ── SOURCE: ZIPRECRUITER ──────────────────────────────────────────────────────
-def search_ziprecruiter(query: str) -> list[dict]:
-    eq = urllib.parse.quote(query)
-    url = f"https://www.ziprecruiter.com/feeds/jobs?search={eq}&location=remote&radius=20&refine_by_employment=contract%2Cpermanent%2Ctemporary"
-    return fetch_rss(url, "ZipRecruiter")
-
-
-# ── SOURCE: SIMPLYHIRED ───────────────────────────────────────────────────────
-def search_simplyhired(query: str) -> list[dict]:
-    eq = urllib.parse.quote(query)
-    url = f"https://www.simplyhired.com/search?q={eq}&l=remote&job-types=contract%2Cfulltime%2Ctemp&fdb=7&pn=1&rss=1"
-    return fetch_rss(url, "SimplyHired")
-
-
-# ── SOURCE: UPWORK ────────────────────────────────────────────────────────────
-def search_upwork(query: str) -> list[dict]:
-    eq = urllib.parse.quote(query)
-    url = f"https://www.upwork.com/ab/feed/jobs/rss?q={eq}&sort=recency&paging=0%3B10"
-    return fetch_rss(url, "Upwork")
-
-
-# ── SOURCE: USAJOBS ───────────────────────────────────────────────────────────
-def search_usajobs(query: str) -> list[dict]:
-    """USAJobs has a proper API — uses keyword search."""
-    eq = urllib.parse.quote(query)
-    url = f"https://data.usajobs.gov/api/search?Keyword={eq}&RemoteIndicator=True&ResultsPerPage=5"
-    try:
-        req = urllib.request.Request(url, headers={
-            **HEADERS,
-            "User-Agent": "shernandez520@gmail.com",
-            "Authorization-Key": "DEMO_KEY"
-        })
-        with urllib.request.urlopen(req, timeout=12) as r:
-            data = json.loads(r.read().decode("utf-8"))
-        jobs = []
-        for item in data.get("SearchResult", {}).get("SearchResultItems", [])[:5]:
-            pos = item.get("MatchedObjectDescriptor", {})
-            title = pos.get("PositionTitle", "")
-            link  = pos.get("PositionURI", "")
-            org   = pos.get("OrganizationName", "")
-            salary = pos.get("PositionRemuneration", [{}])[0]
-            pay = f"${salary.get('MinimumRange','?')}–${salary.get('MaximumRange','?')} {salary.get('RateIntervalCode','')}"
-            desc  = f"{org} | {pay} | {pos.get('PositionScheduleType',[{}])[0].get('Name','')}"
-            if title and link:
-                jobs.append({"title": title, "link": link, "description": desc, "source": "USAJobs"})
-        return jobs
-    except Exception as e:
-        print(f"[USAJobs] fetch failed: {e}")
-        return []
-
-
-# ── GATHER ALL ────────────────────────────────────────────────────────────────
-def gather_all_jobs() -> list[dict]:
-    seen  = set()
+# ── USAJOBS API ───────────────────────────────────────────────────────────────
+def search_usajobs() -> list[dict]:
+    """Search USAJobs public API — doesn't block server IPs."""
+    queries = ["production artist", "workflow automation", "creative operations", "implementation analyst"]
     all_jobs = []
+    seen = set()
 
-    def add(jobs):
-        for j in jobs:
-            if j["link"] not in seen:
-                seen.add(j["link"])
-                all_jobs.append(j)
+    for query in queries:
+        try:
+            eq = urllib.parse.quote(query)
+            url = f"https://data.usajobs.gov/api/search?Keyword={eq}&RemoteIndicator=True&ResultsPerPage=5&SortField=OpenDate&SortDirection=Desc"
+            req = urllib.request.Request(url, headers={
+                "User-Agent": "shernandez520@gmail.com",
+                "Authorization-Key": "DEMO_KEY"
+            })
+            with urllib.request.urlopen(req, timeout=12) as r:
+                data = json.loads(r.read().decode("utf-8"))
 
-    for query in SEARCH_QUERIES:
-        add(search_indeed(query, "remote"))
-        add(search_indeed(query, "Bradenton, FL"))
-        add(search_ziprecruiter(query))
-        add(search_simplyhired(query))
-        add(search_upwork(query))
-        time.sleep(1)
+            for item in data.get("SearchResult", {}).get("SearchResultItems", []):
+                pos = item.get("MatchedObjectDescriptor", {})
+                title = pos.get("PositionTitle", "")
+                link  = pos.get("PositionURI", "")
+                if not title or link in seen:
+                    continue
+                seen.add(link)
+                org   = pos.get("OrganizationName", "")
+                rem   = pos.get("PositionRemuneration", [{}])[0]
+                pay   = f"${rem.get('MinimumRange','?')}–${rem.get('MaximumRange','?')} {rem.get('RateIntervalCode','')}"
+                sched = pos.get("PositionScheduleType", [{}])[0].get("Name", "")
+                close = pos.get("ApplicationCloseDate", "")[:10]
+                desc  = f"{org} | {pay} | {sched} | Closes: {close}"
+                all_jobs.append({
+                    "title": title,
+                    "company": org,
+                    "location": "Remote",
+                    "url": link,
+                    "description": desc,
+                    "job_type": sched,
+                    "source": "USAJobs"
+                })
+            time.sleep(0.5)
+        except Exception as e:
+            print(f"USAJobs failed for '{query}': {e}")
 
-    # USAJobs — just a few targeted searches
-    for query in ["production artist", "workflow automation", "creative operations", "implementation analyst"]:
-        add(search_usajobs(query))
-        time.sleep(0.5)
-
-    print(f"Found {len(all_jobs)} unique jobs across all sources")
+    print(f"USAJobs returned {len(all_jobs)} jobs")
     return all_jobs
 
 
@@ -170,19 +174,12 @@ def score_jobs_with_claude(jobs: list[dict]) -> list[dict]:
     if not jobs:
         return []
 
-    # Batch into chunks of 30 to stay within token limits
-    def chunk(lst, n):
-        for i in range(0, len(lst), n):
-            yield lst[i:i+n]
+    jobs_text = "\n\n".join([
+        f"JOB {i+1} [{j.get('source','')}]:\nTitle: {j['title']}\nCompany: {j.get('company','')}\nLocation: {j.get('location','')}\nType: {j.get('job_type','')}\nURL: {j['url']}\nDescription: {j.get('description','')}"
+        for i, j in enumerate(jobs)
+    ])
 
-    all_scored = []
-    for batch in chunk(jobs, 30):
-        jobs_text = "\n\n".join([
-            f"JOB {i+1} [{j['source']}]:\nTitle: {j['title']}\nURL: {j['link']}\nDescription: {j['description']}"
-            for i, j in enumerate(batch)
-        ])
-
-        prompt = f"""You are a job search assistant for Sheila Hernandez.
+    prompt = f"""You are a job search assistant for Sheila Hernandez.
 
 SHEILA'S PROFILE:
 {PROFILE}
@@ -190,57 +187,52 @@ SHEILA'S PROFILE:
 JOBS TO EVALUATE:
 {jobs_text}
 
-Score each job 1-10 for fit. Consider:
-- Remote or within 20 miles of Bradenton FL (34209)
-- Contract, full-time, OR temp-to-permanent (all welcome)
-- Matches her skills: production art, workflow automation, creative ops, implementation
-- Reasonable compensation: $55/hr contract or $55-75k+ salary
+Score each job 1-10 for fit. Consider location, job type, skills match, and compensation.
 
-Respond ONLY with valid JSON, no markdown, no explanation:
+Respond ONLY with valid JSON, no markdown:
 [
   {{
     "job_number": 1,
     "title": "...",
+    "company": "...",
     "url": "...",
     "source": "...",
     "score": 8,
-    "reason": "One sentence why this fits",
+    "reason": "One sentence why this fits or doesn't",
     "flag": "APPLY"
   }}
 ]
 
-Only include jobs scored 5 or above. Use flag: "APPLY" (8-10), "MAYBE" (5-7). Sort by score descending."""
+Only include jobs scored 5+. Flag: "APPLY" (8-10), "MAYBE" (5-7). Sort by score descending."""
 
-        try:
-            data = json.dumps({
-                "model": "claude-sonnet-4-20250514",
-                "max_tokens": 2000,
-                "messages": [{"role": "user", "content": prompt}]
-            }).encode("utf-8")
+    try:
+        data = json.dumps({
+            "model": "claude-sonnet-4-20250514",
+            "max_tokens": 2000,
+            "messages": [{"role": "user", "content": prompt}]
+        }).encode("utf-8")
 
-            req = urllib.request.Request(
-                "https://api.anthropic.com/v1/messages",
-                data=data,
-                headers={
-                    "Content-Type": "application/json",
-                    "x-api-key": ANTHROPIC_API_KEY,
-                    "anthropic-version": "2023-06-01"
-                }
-            )
-            with urllib.request.urlopen(req, timeout=30) as r:
-                result = json.loads(r.read().decode("utf-8"))
+        req = urllib.request.Request(
+            "https://api.anthropic.com/v1/messages",
+            data=data,
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01"
+            }
+        )
+        with urllib.request.urlopen(req, timeout=30) as r:
+            result = json.loads(r.read().decode("utf-8"))
 
-            raw = result["content"][0]["text"].strip()
-            raw = re.sub(r"^```json\s*|```\s*$", "", raw, flags=re.MULTILINE).strip()
-            all_scored.extend(json.loads(raw))
+        raw = result["content"][0]["text"].strip()
+        raw = re.sub(r"^```json\s*|```\s*$", "", raw, flags=re.MULTILINE).strip()
+        scored = json.loads(raw)
+        print(f"Claude scored {len(scored)} relevant jobs")
+        return scored
 
-        except Exception as e:
-            print(f"Claude scoring failed for batch: {e}")
-
-    # Sort all results by score
-    all_scored.sort(key=lambda x: x.get("score", 0), reverse=True)
-    print(f"Claude scored {len(all_scored)} relevant jobs total")
-    return all_scored
+    except Exception as e:
+        print(f"Claude scoring failed: {e}")
+        return []
 
 
 # ── EMAIL ─────────────────────────────────────────────────────────────────────
@@ -249,36 +241,26 @@ def build_email_html(scored_jobs: list[dict], total_searched: int) -> str:
     apply_jobs = [j for j in scored_jobs if j.get("flag") == "APPLY"]
     maybe_jobs = [j for j in scored_jobs if j.get("flag") == "MAYBE"]
 
-    SOURCE_COLORS = {
-        "Indeed": "#c4581a", "ZipRecruiter": "#2d7dd2",
-        "SimplyHired": "#e63946", "Upwork": "#14a800",
-        "USAJobs": "#003f8a"
-    }
+    SOURCE_COLORS = {"Indeed": "#c4581a", "USAJobs": "#003f8a"}
 
     def job_card(job, color):
-        source = job.get("source", "")
-        sc = SOURCE_COLORS.get(source, color)
+        sc = SOURCE_COLORS.get(job.get("source",""), color)
         return f"""
         <div style="background:#fff;border-left:4px solid {color};padding:16px 20px;margin-bottom:12px;border-radius:0 4px 4px 0;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
             <a href="{job.get('url','#')}" style="font-family:Georgia,serif;font-size:16px;color:#1a1410;text-decoration:none;font-weight:bold;line-height:1.3;flex:1;">{job.get('title','Untitled')}</a>
             <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
-              <span style="background:{sc};color:white;padding:2px 8px;border-radius:10px;font-size:11px;">{source}</span>
+              <span style="background:{sc};color:white;padding:2px 8px;border-radius:10px;font-size:11px;">{job.get('source','')}</span>
               <span style="background:{color};color:white;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:bold;">{job.get('score','?')}/10</span>
             </div>
           </div>
+          <p style="margin:4px 0 0;font-size:12px;color:#5a4a3a;">{job.get('company','')} · {job.get('location','')}</p>
           <p style="margin:8px 0 0;font-size:13px;color:#8c6a4f;font-style:italic;">{job.get('reason','')}</p>
           <a href="{job.get('url','#')}" style="display:inline-block;margin-top:10px;font-size:12px;color:{color};text-decoration:none;border-bottom:1px solid {color};">View & Apply →</a>
         </div>"""
 
-    apply_html = "".join([job_card(j, "#c4581a") for j in apply_jobs]) if apply_jobs else "<p style='color:#8c6a4f;font-style:italic;'>No strong matches today — check back tomorrow.</p>"
+    apply_html = "".join([job_card(j, "#c4581a") for j in apply_jobs]) if apply_jobs else "<p style='color:#8c6a4f;font-style:italic;'>No strong matches today.</p>"
     maybe_html = "".join([job_card(j, "#8c6a4f") for j in maybe_jobs]) if maybe_jobs else ""
-
-    source_counts = {}
-    for j in scored_jobs:
-        s = j.get("source","?")
-        source_counts[s] = source_counts.get(s, 0) + 1
-    sources_str = " · ".join([f"{k}: {v}" for k,v in source_counts.items()])
 
     return f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head>
@@ -288,7 +270,7 @@ def build_email_html(scored_jobs: list[dict], total_searched: int) -> str:
     <p style="margin:0 0 4px;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#d4b896;">Daily Job Digest</p>
     <h1 style="margin:0;font-family:Georgia,serif;font-size:28px;color:#faf7f2;font-weight:normal;">Good morning, <em style="color:#e8855a;">Sheila</em> ☕</h1>
     <p style="margin:8px 0 0;font-size:13px;color:#8c6a4f;">{date_str} · {total_searched} listings scanned · {len(apply_jobs)} strong matches</p>
-    <p style="margin:4px 0 0;font-size:11px;color:#5a4a3a;">{sources_str}</p>
+    <p style="margin:4px 0 0;font-size:11px;color:#5a4a3a;">Sources: Indeed + USAJobs</p>
   </div>
   <div style="height:4px;background:#c4581a;"></div>
   <div style="background:#faf7f2;padding:28px 32px;">
@@ -318,10 +300,16 @@ def send_email(html_body: str, job_count: int):
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 def main():
     print(f"Starting job hunt at {datetime.now()}")
-    all_jobs    = gather_all_jobs()
-    scored_jobs = score_jobs_with_claude(all_jobs) if all_jobs else []
-    apply_count = len([j for j in scored_jobs if j.get("flag") == "APPLY"])
-    html        = build_email_html(scored_jobs, len(all_jobs))
+
+    indeed_jobs  = search_indeed_via_claude()
+    usajobs      = search_usajobs()
+    all_jobs     = indeed_jobs + usajobs
+
+    print(f"Total: {len(all_jobs)} jobs to score")
+
+    scored_jobs  = score_jobs_with_claude(all_jobs) if all_jobs else []
+    apply_count  = len([j for j in scored_jobs if j.get("flag") == "APPLY"])
+    html         = build_email_html(scored_jobs, len(all_jobs))
     send_email(html, apply_count)
     print("Done!")
 
