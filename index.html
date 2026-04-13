@@ -8,841 +8,220 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --ink: #1a1410;
-      --paper: #f5f0e8;
-      --rust: #c4581a;
-      --rust-light: #e8855a;
-      --warm-mid: #8c6a4f;
-      --warm-light: #d4b896;
-      --cream: #faf7f2;
-      --rule: #c8b8a2;
+      --ink: #1a1410; --paper: #f5f0e8; --rust: #c4581a; --rust-light: #e8855a;
+      --warm-mid: #8c6a4f; --warm-light: #d4b896; --cream: #faf7f2; --rule: #c8b8a2;
     }
-
     html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--paper);
-      color: var(--ink);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* GRAIN OVERLAY */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 1000;
-      opacity: 0.4;
-    }
-
-    /* HEADER */
-    header {
-      min-height: 80vh;
-      display: flex;
-      align-items: center;
-      background: var(--ink);
-      position: relative;
-      overflow: hidden;
-    }
-
-    header::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: var(--rust);
-    }
-
-    .header-left {
-      padding: 5rem 6rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      position: relative;
-      max-width: 900px;
-    }
-
-    .header-bg-number {
-      position: absolute;
-      right: 4rem;
-      top: 50%;
-      transform: translateY(-50%);
-      font-family: 'DM Serif Display', serif;
-      font-size: 22rem;
-      color: rgba(255,255,255,0.03);
-      line-height: 1;
-      pointer-events: none;
-      user-select: none;
-    }
-
-    .headshot {
-      width: 170px;
-      height: 170px;
-      border-radius: 50%;
-      object-fit: cover;
-      object-position: center top;
-      border: 3px solid var(--rust);
-      margin-bottom: 1.5rem;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.1s;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.15s;
-    }
-
-    .social-links a {
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--warm-mid);
-      text-decoration: none;
-      border-bottom: 1px solid var(--warm-mid);
-      padding-bottom: 1px;
-      transition: color 0.2s ease, border-color 0.2s ease;
-    }
-
-    .social-links a:hover {
-      color: var(--rust-light);
-      border-color: var(--rust-light);
-    }
-
-    .eyebrow {
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--warm-light);
-      margin-bottom: 1.5rem;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.2s;
-    }
-
-    h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(4rem, 9vw, 8rem);
-      color: var(--cream);
-      line-height: 1.0;
-      margin-bottom: 0.5rem;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.4s;
-    }
-
-    h1 em {
-      font-style: italic;
-      color: var(--rust-light);
-    }
-
-    .header-tagline {
-      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-      color: var(--warm-light);
-      margin-top: 1.5rem;
-      max-width: 380px;
-      line-height: 1.7;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.6s;
-    }
-
-    .header-cta {
-      margin-top: 2.5rem;
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.8s;
-    }
-
-    .btn-primary {
-      display: inline-block;
-      padding: 0.8rem 2rem;
-      background: var(--rust);
-      color: white;
-      text-decoration: none;
-      font-size: 0.85rem;
-      letter-spacing: 0.05em;
-      font-weight: 500;
-      transition: background 0.2s ease, transform 0.2s ease;
-    }
-
-    .btn-primary:hover {
-      background: var(--rust-light);
-      transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-      display: inline-block;
-      padding: 0.8rem 2rem;
-      border: 1px solid var(--warm-mid);
-      color: var(--warm-light);
-      text-decoration: none;
-      font-size: 0.85rem;
-      letter-spacing: 0.05em;
-      transition: border-color 0.2s ease, color 0.2s ease;
-    }
-
-    .btn-secondary:hover {
-      border-color: var(--rust-light);
-      color: var(--rust-light);
-    }
-
-    .header-right {
-      background: var(--cream);
-      padding: 4rem 4rem 4rem 3rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      position: relative;
-    }
-
-    .availability-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: white;
-      border: 1px solid var(--rule);
-      padding: 0.5rem 1rem;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--warm-mid);
-      margin-bottom: 2rem;
-      width: fit-content;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.5s;
-    }
-
-    .availability-badge::before {
-      content: '';
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #4caf7d;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .skills-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 0.7s;
-    }
-
-    .skill-card {
-      background: white;
-      border: 1px solid var(--rule);
-      padding: 1.2rem;
-      transition: border-color 0.2s ease, transform 0.2s ease;
-    }
-
-    .skill-card:hover {
-      border-color: var(--rust);
-      transform: translateY(-3px);
-    }
-
-    .skill-card .skill-icon {
-      font-size: 1.4rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .skill-card h3 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1rem;
-      color: var(--ink);
-      margin-bottom: 0.3rem;
-    }
-
-    .skill-card p {
-      font-size: 0.75rem;
-      color: var(--warm-mid);
-      line-height: 1.5;
-    }
-
-    .years-badge {
-      position: absolute;
-      bottom: 3rem;
-      right: 3rem;
-      text-align: right;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards 1s;
-    }
-
-    .years-badge .number {
-      font-family: 'DM Serif Display', serif;
-      font-size: 5rem;
-      color: var(--rule);
-      line-height: 1;
-    }
-
-    .years-badge .label {
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--warm-mid);
-    }
-
-    /* TESTIMONIAL */
-    .testimonial {
-      background: var(--rust);
-      padding: 4rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .testimonial::before {
-      content: '\201C';
-      position: absolute;
-      top: -2rem;
-      left: 2rem;
-      font-family: 'DM Serif Display', serif;
-      font-size: 18rem;
-      color: rgba(255,255,255,0.07);
-      line-height: 1;
-      pointer-events: none;
-    }
-
-    .testimonial blockquote {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(1.3rem, 2.5vw, 2rem);
-      color: white;
-      line-height: 1.5;
-      max-width: 800px;
-      font-style: italic;
-      position: relative;
-      z-index: 1;
-      margin-bottom: 1.5rem;
-    }
-
-    .testimonial cite {
-      font-size: 0.75rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.7);
-      font-style: normal;
-    }
-
-    .rating-stars {
-      display: flex;
-      gap: 0.3rem;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .rating-stars span {
-      color: white;
-      font-size: 1.2rem;
-    }
-
-
-    section {
-      padding: 5rem 4rem;
-    }
-
-    .section-rule {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 3rem;
-    }
-
-    .section-rule .label {
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--warm-mid);
-      white-space: nowrap;
-    }
-
-    .section-rule .line {
-      flex: 1;
-      height: 1px;
-      background: var(--rule);
-    }
-
-    /* ABOUT */
-    .about {
-      background: white;
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 4rem;
-      align-items: start;
-      padding: 4rem;
-    }
-
-    .about-aside h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(2rem, 4vw, 3.5rem);
-      line-height: 1.1;
-      color: var(--ink);
-    }
-
-    .about-aside h2 em {
-      font-style: italic;
-      color: var(--rust);
-    }
-
-    .about-body p {
-      font-size: 1.05rem;
-      color: #3a3028;
-      margin-bottom: 1.2rem;
-      line-height: 1.8;
-    }
-
-    .about-body p strong {
-      color: var(--rust);
-      font-weight: 500;
-    }
-
-    .tools-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1.5rem;
-    }
-
-    .tool-tag {
-      background: var(--paper);
-      border: 1px solid var(--rule);
-      padding: 0.3rem 0.8rem;
-      font-size: 0.75rem;
-      color: var(--warm-mid);
-      letter-spacing: 0.05em;
-    }
-
-    /* FEATURED PROJECT */
-    .project-section {
-      background: var(--ink);
-      color: var(--cream);
-    }
-
-    .project-card {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-      align-items: center;
-      background: #231e19;
-      border: 1px solid #3a3028;
-      padding: 3rem;
-    }
-
-    .project-card .project-label {
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--rust-light);
-      margin-bottom: 1rem;
-    }
-
-    .project-card h3 {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(2rem, 3vw, 3rem);
-      color: white;
-      margin-bottom: 1rem;
-    }
-
-    .project-card p {
-      color: var(--warm-light);
-      line-height: 1.8;
-      margin-bottom: 1.5rem;
-    }
-
-    .project-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      border-top: 1px solid #3a3028;
-      padding-top: 1.5rem;
-    }
-
-    .stat .number {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2rem;
-      color: var(--rust-light);
-    }
-
-    .stat .label {
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--warm-mid);
-    }
-
-    .project-visual {
-      background: #2e271f;
-      border: 1px solid #3a3028;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .mock-file {
-      background: #1a1410;
-      border: 1px solid #3a3028;
-      padding: 0.8rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 0.8rem;
-      color: var(--warm-light);
-    }
-
-    .mock-file .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .mock-file .check {
-      margin-left: auto;
-      color: #4caf7d;
-      font-size: 0.75rem;
-    }
-
-    .mock-file .warn {
-      margin-left: auto;
-      color: var(--rust-light);
-      font-size: 0.75rem;
-    }
-
-    /* EXPERIENCE */
-    .experience {
-      background: var(--cream);
-    }
-
-    .exp-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
-    }
-
-    .exp-item {
-      border-top: 2px solid var(--rust);
-      padding-top: 1.5rem;
-    }
-
-    .exp-item .role {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.3rem;
-      color: var(--ink);
-      margin-bottom: 0.3rem;
-    }
-
-    .exp-item .org {
-      font-size: 0.8rem;
-      color: var(--rust);
-      letter-spacing: 0.05em;
-      margin-bottom: 0.8rem;
-    }
-
-    .exp-item p {
-      font-size: 0.85rem;
-      color: var(--warm-mid);
-      line-height: 1.7;
-    }
-
-    /* SERVICES */
-    .services {
-      background: white;
-    }
-
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0;
-      border: 1px solid var(--rule);
-    }
-
-    .service-item {
-      padding: 2.5rem 2rem;
-      border-right: 1px solid var(--rule);
-      transition: background 0.2s ease;
-    }
-
+    body { background: var(--paper); color: var(--ink); font-family: 'DM Sans', sans-serif; font-weight: 300; line-height: 1.6; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
+
+    .page-layout { display: flex; min-height: 100vh; align-items: flex-start; }
+
+    .sidebar { width: 360px; min-width: 360px; height: 100vh; position: sticky; top: 0; background: var(--ink); display: flex; flex-direction: column; justify-content: center; padding: 3rem 2.5rem; border-right: 4px solid var(--rust); overflow: hidden; }
+    .sidebar::before { content: '20'; position: absolute; bottom: -2rem; right: -1rem; font-family: 'DM Serif Display', serif; font-size: 16rem; color: rgba(255,255,255,0.03); line-height: 1; pointer-events: none; }
+
+    .headshot { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; object-position: center top; border: 3px solid var(--rust); margin-bottom: 1rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.1s; }
+    .social-links { display: flex; gap: 1rem; margin-bottom: 1rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.15s; }
+    .social-links a { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--warm-mid); text-decoration: none; border-bottom: 1px solid var(--warm-mid); padding-bottom: 1px; transition: color 0.2s, border-color 0.2s; }
+    .social-links a:hover { color: var(--rust-light); border-color: var(--rust-light); }
+    .eyebrow { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--warm-light); margin-bottom: 1rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.2s; line-height: 1.8; }
+    h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2.6rem, 3.5vw, 3.6rem); color: var(--cream); line-height: 1.0; margin-bottom: 0.4rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.4s; }
+    h1 em { font-style: italic; color: var(--rust-light); }
+    .header-tagline { font-size: 0.82rem; color: var(--warm-light); margin-top: 1rem; line-height: 1.7; opacity: 0; animation: fadeUp 0.8s ease forwards 0.6s; }
+    .header-cta { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; opacity: 0; animation: fadeUp 0.8s ease forwards 0.8s; }
+
+    .btn-primary { display: block; padding: 0.75rem 1.5rem; background: var(--rust); color: white; text-decoration: none; font-size: 0.8rem; letter-spacing: 0.05em; font-weight: 500; transition: background 0.2s, transform 0.2s; text-align: center; }
+    .btn-primary:hover { background: var(--rust-light); transform: translateY(-2px); }
+    .btn-secondary { display: block; padding: 0.75rem 1.5rem; border: 1px solid var(--warm-mid); color: var(--warm-light); text-decoration: none; font-size: 0.8rem; letter-spacing: 0.05em; transition: border-color 0.2s, color 0.2s; text-align: center; }
+    .btn-secondary:hover { border-color: var(--rust-light); color: var(--rust-light); }
+
+    .main-content { flex: 1; min-width: 0; }
+
+    .testimonial { background: var(--rust); padding: 3.5rem 4rem; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden; }
+    .testimonial::before { content: '\201C'; position: absolute; top: -2rem; left: 1rem; font-family: 'DM Serif Display', serif; font-size: 14rem; color: rgba(255,255,255,0.07); line-height: 1; pointer-events: none; }
+    .testimonial blockquote { font-family: 'DM Serif Display', serif; font-size: clamp(1.1rem, 1.8vw, 1.5rem); color: white; line-height: 1.5; max-width: 700px; font-style: italic; position: relative; z-index: 1; margin-bottom: 1.2rem; }
+    .testimonial cite { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.7); font-style: normal; }
+    .rating-stars { display: flex; gap: 0.3rem; justify-content: center; margin-bottom: 1.2rem; }
+    .rating-stars span { color: white; font-size: 1rem; }
+
+    section.content-section { padding: 4rem; border-bottom: 1px solid var(--rule); }
+    .section-label { font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--warm-mid); margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+    .about-section { background: white; }
+    .about-headline { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 2.5vw, 2.6rem); line-height: 1.1; color: var(--ink); margin-bottom: 1.5rem; }
+    .about-headline em { font-style: italic; color: var(--rust); }
+    .about-body p { font-size: 1rem; color: #3a3028; margin-bottom: 1rem; line-height: 1.8; }
+    .about-body p strong { color: var(--rust); font-weight: 500; }
+    .tools-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
+    .tool-tag { background: var(--paper); border: 1px solid var(--rule); padding: 0.3rem 0.8rem; font-size: 0.72rem; color: var(--warm-mid); }
+
+    .project-section-wrap { background: var(--ink); padding: 4rem; border-bottom: 1px solid #3a3028; }
+    .project-section-label { font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--warm-mid); margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; }
+    .project-section-label::after { content: ''; flex: 1; height: 1px; background: #3a3028; }
+    .project-card { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; background: #231e19; border: 1px solid #3a3028; padding: 2.5rem; }
+    .project-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rust-light); margin-bottom: 0.8rem; }
+    .project-card h3 { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 2.2vw, 2.4rem); color: white; margin-bottom: 1rem; }
+    .project-card p { color: var(--warm-light); line-height: 1.8; font-size: 0.88rem; margin-bottom: 0.8rem; }
+    .project-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; border-top: 1px solid #3a3028; padding-top: 1.2rem; margin-top: 0.5rem; }
+    .stat .number { font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: var(--rust-light); }
+    .stat .label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--warm-mid); }
+    .project-visual { background: #2e271f; border: 1px solid #3a3028; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.8rem; }
+    .mock-file { background: #1a1410; border: 1px solid #3a3028; padding: 0.7rem 0.9rem; display: flex; align-items: center; gap: 0.7rem; font-size: 0.72rem; color: var(--warm-light); }
+    .mock-file .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .mock-file .check { margin-left: auto; color: #4caf7d; font-size: 0.68rem; }
+    .mock-file .warn { margin-left: auto; color: var(--rust-light); font-size: 0.68rem; }
+
+    .services-section { background: var(--cream); }
+    .services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; border: 1px solid var(--rule); }
+    .service-item { padding: 2rem 1.5rem; border-right: 1px solid var(--rule); transition: background 0.2s; }
     .service-item:last-child { border-right: none; }
+    .service-item:hover { background: var(--paper); }
+    .service-item .number { font-family: 'DM Serif Display', serif; font-size: 2.5rem; color: var(--rule); line-height: 1; margin-bottom: 0.8rem; }
+    .service-item h3 { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--ink); margin-bottom: 0.6rem; }
+    .service-item p { font-size: 0.8rem; color: var(--warm-mid); line-height: 1.7; }
 
-    .service-item:hover {
-      background: var(--paper);
-    }
+    .contact-section { background: var(--ink); text-align: center; padding: 5rem 4rem; }
+    .contact-section h2 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 3.5vw, 3.2rem); color: white; margin-bottom: 1rem; }
+    .contact-section h2 em { font-style: italic; color: var(--rust-light); }
+    .contact-section p { color: var(--warm-light); max-width: 480px; margin: 0 auto 2rem; line-height: 1.8; font-size: 0.88rem; }
+    .contact-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .contact-links .btn-primary, .contact-links .btn-secondary { display: inline-block; }
 
-    .service-item .number {
-      font-family: 'DM Serif Display', serif;
-      font-size: 3rem;
-      color: var(--rule);
-      line-height: 1;
-      margin-bottom: 1rem;
-    }
+    footer { background: #0f0c0a; padding: 1.2rem 4rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; color: var(--warm-mid); }
 
-    .service-item h3 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.3rem;
-      color: var(--ink);
-      margin-bottom: 0.75rem;
-    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; animation: revealFallback 0.5s ease 1.2s forwards; }
+    @keyframes revealFallback { to { opacity: 1; transform: translateY(0); } }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
 
-    .service-item p {
-      font-size: 0.85rem;
-      color: var(--warm-mid);
-      line-height: 1.7;
-    }
-
-    /* CONTACT */
-    .contact {
-      background: var(--ink);
-      text-align: center;
-      padding: 6rem 4rem;
-    }
-
-    .contact h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: clamp(2.5rem, 5vw, 4.5rem);
-      color: white;
-      margin-bottom: 1rem;
-    }
-
-    .contact h2 em {
-      font-style: italic;
-      color: var(--rust-light);
-    }
-
-    .contact p {
-      color: var(--warm-light);
-      max-width: 500px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.8;
-    }
-
-    .contact-links {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    /* FOOTER */
-    footer {
-      background: #0f0c0a;
-      padding: 1.5rem 4rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-      color: var(--warm-mid);
-    }
-
-    /* ANIMATIONS */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .reveal {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Fallback: show all reveals after 1s in case JS doesn't fire */
-    @keyframes revealFallback {
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .reveal {
-      animation: revealFallback 0.5s ease 1.2s forwards;
-    }
-
-    /* RESPONSIVE */
     @media (max-width: 900px) {
-      header { min-height: auto; }
-      .header-left { padding: 3rem 2rem; }
-      .about { grid-template-columns: 1fr; padding: 3rem 2rem; gap: 2rem; }
+      .page-layout { flex-direction: column; }
+      .sidebar { width: 100%; min-width: unset; height: auto; position: relative; padding: 3rem 2rem; border-right: none; border-bottom: 4px solid var(--rust); }
+      .header-cta { flex-direction: row; flex-wrap: wrap; }
+      .btn-primary, .btn-secondary { display: inline-block; }
+      section.content-section, .project-section-wrap { padding: 3rem 2rem; }
       .project-card { grid-template-columns: 1fr; }
-      .exp-grid { grid-template-columns: 1fr; }
       .services-grid { grid-template-columns: 1fr; }
       .service-item { border-right: none; border-bottom: 1px solid var(--rule); }
-      section { padding: 3rem 2rem; }
-      footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+      footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.2rem 2rem; }
+      .contact-section { padding: 3rem 2rem; }
     }
   </style>
 </head>
 <body>
+<div class="page-layout">
 
-  <!-- HEADER -->
-  <header>
-    <div class="header-left">
-      <img src="sheila.jpg" alt="Sheila Hernandez" class="headshot" />
-      <div class="social-links">
-        <a href="https://www.linkedin.com/in/sheila-aiworkflow/" target="_blank">LinkedIn</a>
-        <a href="https://github.com/Shernandez520" target="_blank">GitHub</a>
-      </div>
-      <p class="eyebrow">Available for Contract Work — Remote · $55/hr · Bradenton, FL</p>
-      <h1>Sheila<br><em>Hernandez</em></h1>
-      <p class="header-tagline">Two decades in promotional products — supplier side, distributor side, and every broken workflow in between. I build the infrastructure that makes creative operations scale.</p>
-      <div class="header-cta">
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSex4ZaX_irg8e_Af0nSE--8wEFJ29gWQ2UtJnvYOB08nLzHrw/viewform?usp=publish-editor" target="_blank" class="btn-primary">Hire Me for Contract Work</a>
-        <a href="Sheila_Hernandez_Resume.pdf" download class="btn-secondary">Download Résumé ↓</a>
-        <a href="https://artcheck.app" target="_blank" class="btn-secondary">See ArtCheck →</a>
-      </div>
+  <aside class="sidebar">
+    <img src="sheila.jpg" alt="Sheila Hernandez" class="headshot" />
+    <div class="social-links">
+      <a href="https://www.linkedin.com/in/sheila-aiworkflow/" target="_blank">LinkedIn</a>
+      <a href="https://github.com/Shernandez520" target="_blank">GitHub</a>
     </div>
-    <div class="header-bg-number">20</div>
-  </header>
-
-  <!-- TESTIMONIAL -->
-  <section class="testimonial">
-    <div class="rating-stars">
-      <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-    </div>
-    <blockquote>
-      "Sheila has shown initiative in refining automations that improved accuracy and reduced repetitive work. She has improved workflow, saved time and reduced errors. She maintains a cool head when dealing with challenges — communicative and collaborative on finding solutions."
-    </blockquote>
-    <cite>Direct Supervisor &nbsp;·&nbsp; 2026 Annual Performance Review &nbsp;·&nbsp; Overall Rating: 5/5 Exceptional</cite>
-  </section>
-
-  <!-- ABOUT -->
-  <section class="about">
-    <div class="about-aside reveal">
-      <h2>I translate between<br><em>technical</em><br>and human.</h2>
-    </div>
-    <div class="about-body reveal">
-      <p>I've spent over two decades in the promotional products industry — on the supplier side, the distributor side, and everywhere in between. I don't just understand the work; I understand <strong>why the work breaks</strong>, where the bottlenecks hide, and how to fix them in ways that actually stick.</p>
-      <p>I build automation tools, clean up art files, design workflows, and implement systems. I recently built and launched <strong>ArtCheck</strong> — a live SaaS tool for art file screening that's gaining organic traction in the promo industry — because I watched the same problem happen at every company I'd ever worked for and decided to solve it once.</p>
-      <p>That's how I work. I see the thing that's broken, I build the fix, and I make it repeatable. Available now for <strong>part-time remote contract engagements</strong>.</p>
-      <div class="tools-list">
-        <span class="tool-tag">Python</span>
-        <span class="tool-tag">PowerShell</span>
-        <span class="tool-tag">Make.com</span>
-        <span class="tool-tag">Zapier</span>
-        <span class="tool-tag">Streamlit</span>
-        <span class="tool-tag">Adobe Illustrator</span>
-        <span class="tool-tag">CorelDRAW</span>
-        <span class="tool-tag">ExtendScript</span>
-        <span class="tool-tag">NetSuite</span>
-        <span class="tool-tag">Promo Industry</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- FEATURED PROJECT -->
-  <section class="project-section">
-    <div class="section-rule">
-      <span class="label" style="color: var(--warm-mid)">Featured Work</span>
-      <div class="line" style="background: #3a3028"></div>
-    </div>
-    <div class="project-card reveal">
-      <div>
-        <p class="project-label">Live SaaS Product</p>
-        <h3>ArtCheck</h3>
-        <p>An art file screening tool built for Sales and CS teams in the promotional products industry. Upload a file, get an instant readiness report — before it ever hits the art department. Supports vectors, rasters, PDFs, PSDs, CorelDRAW files, and more.</p>
-        <p>Built from scratch. Deployed on Streamlit Cloud. Getting organic traction via LinkedIn and industry groups with zero paid promotion.</p>
-        <a href="https://artcheck.app" target="_blank" class="btn-primary" style="display:inline-block; margin-top: 0.5rem;">Try ArtCheck Live →</a>
-        <div class="project-stats">
-          <div class="stat">
-            <div class="number">10+</div>
-            <div class="label">File Types</div>
-          </div>
-          <div class="stat">
-            <div class="number">0</div>
-            <div class="label">Paid Promotion</div>
-          </div>
-          <div class="stat">
-            <div class="number">5/5</div>
-            <div class="label">Perf Review</div>
-          </div>
-        </div>
-      </div>
-      <div class="project-visual">
-        <div style="font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--warm-mid); margin-bottom: 0.5rem;">Art File Screening Results</div>
-        <div class="mock-file">
-          <div class="dot" style="background: #4caf7d"></div>
-          logo_final_v3.ai
-          <span class="check">✓ Vector · CMYK · Print-ready</span>
-        </div>
-        <div class="mock-file">
-          <div class="dot" style="background: var(--rust-light)"></div>
-          shirt-artwork.png
-          <span class="warn">⚠ Low res · RGB · Needs work</span>
-        </div>
-        <div class="mock-file">
-          <div class="dot" style="background: #4caf7d"></div>
-          embroidery_chest.dst
-          <span class="check">✓ 8,420 stitches · Ready</span>
-        </div>
-        <div class="mock-file">
-          <div class="dot" style="background: var(--rust-light)"></div>
-          brand_guidelines.pdf
-          <span class="warn">⚠ Spot colors detected</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SERVICES -->
-  <section class="services">
-    <div class="section-rule reveal">
-      <span class="label">What I Do for You</span>
-      <div class="line"></div>
-    </div>
-    <div class="services-grid reveal">
-      <div class="service-item">
-        <div class="number">01</div>
-        <h3>Production Artwork</h3>
-        <p>File prep, vector cleanup, color separations, and decoration-method-specific setup for screen print, embroidery, sublimation, laser, and more. I know what "print-ready" actually means in promo.</p>
-      </div>
-      <div class="service-item">
-        <div class="number">02</div>
-        <h3>Workflow Automation</h3>
-        <p>I map your broken process, then build the automation that fixes it. Make.com, Zapier, Python, PowerShell. If it's repetitive and manual, it shouldn't be.</p>
-      </div>
-      <div class="service-item">
-        <div class="number">03</div>
-        <h3>Implementation & Ops</h3>
-        <p>New platform rollout, process documentation, system integration, training. I'm the person who makes sure the tool you bought actually gets used the way it was supposed to.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section class="contact">
-    <h2>Let's build<br>something <em>that works.</em></h2>
-    <p>Available for part-time remote contract work. Production art, workflow automation, creative ops, and implementation. If your team has a process that feels broken, I've probably seen it before — and fixed it.</p>
-    <div class="contact-links">
+    <p class="eyebrow">Available for Contract Work — Remote · $55/hr · Bradenton, FL</p>
+    <h1>Sheila<br><em>Hernandez</em></h1>
+    <p class="header-tagline">Two decades in promotional products — supplier side, distributor side, and every broken workflow in between. I build the infrastructure that makes creative operations scale.</p>
+    <div class="header-cta">
       <a href="https://docs.google.com/forms/d/e/1FAIpQLSex4ZaX_irg8e_Af0nSE--8wEFJ29gWQ2UtJnvYOB08nLzHrw/viewform?usp=publish-editor" target="_blank" class="btn-primary">Hire Me for Contract Work</a>
-      <a href="https://www.linkedin.com/in/sheila-aiworkflow/" target="_blank" class="btn-secondary">LinkedIn →</a>
-      <a href="https://github.com/Shernandez520" target="_blank" class="btn-secondary">GitHub →</a>
+      <a href="Sheila_Hernandez_Resume.pdf" download class="btn-secondary">Download Résumé ↓</a>
+      <a href="https://artcheck.app" target="_blank" class="btn-secondary">See ArtCheck →</a>
     </div>
-  </section>
+  </aside>
 
-  <footer>
-    <span>Sheila Hernandez — Creative Operations & Workflow Automation</span>
-    <span>Bradenton, FL · Remote · Available Now</span>
-  </footer>
+  <main class="main-content">
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    // Scroll reveal
-    const observer = new Int
+    <div class="testimonial">
+      <div class="rating-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <blockquote>"Sheila has shown initiative in refining automations that improved accuracy and reduced repetitive work. She has improved workflow, saved time and reduced errors. She maintains a cool head when dealing with challenges — communicative and collaborative on finding solutions."</blockquote>
+      <cite>Direct Supervisor &nbsp;·&nbsp; 2026 Annual Performance Review &nbsp;·&nbsp; Overall Rating: 5/5 Exceptional</cite>
+    </div>
+
+    <section class="content-section about-section">
+      <div class="section-label">About</div>
+      <div class="about-body reveal">
+        <h2 class="about-headline">I translate between<br><em>technical</em> and human.</h2>
+        <p>I've spent over two decades in the promotional products industry — on the supplier side, the distributor side, and everywhere in between. I don't just understand the work; I understand <strong>why the work breaks</strong>, where the bottlenecks hide, and how to fix them in ways that actually stick.</p>
+        <p>I build automation tools, clean up art files, design workflows, and implement systems. I recently built and launched <strong>ArtCheck</strong> — a live SaaS tool for art file screening that's gaining organic traction in the promo industry — because I watched the same problem happen at every company I'd ever worked for and decided to solve it once.</p>
+        <p>That's how I work. I see the thing that's broken, I build the fix, and I make it repeatable. Available now for <strong>part-time remote contract engagements</strong>.</p>
+        <div class="tools-list">
+          <span class="tool-tag">Python</span><span class="tool-tag">PowerShell</span><span class="tool-tag">Make.com</span><span class="tool-tag">Zapier</span><span class="tool-tag">Streamlit</span><span class="tool-tag">Adobe Illustrator</span><span class="tool-tag">CorelDRAW</span><span class="tool-tag">ExtendScript</span><span class="tool-tag">NetSuite</span><span class="tool-tag">Promo Industry</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="project-section-wrap">
+      <div class="project-section-label">Featured Work</div>
+      <div class="project-card reveal">
+        <div>
+          <p class="project-label">Live SaaS Product</p>
+          <h3>ArtCheck</h3>
+          <p>An art file screening tool built for Sales and CS teams in the promotional products industry. Upload a file, get an instant readiness report — before it ever hits the art department.</p>
+          <p>Built from scratch. Getting organic traction via LinkedIn and industry groups with zero paid promotion.</p>
+          <a href="https://artcheck.app" target="_blank" class="btn-primary" style="display:inline-block; margin-top:0.5rem;">Try ArtCheck Live →</a>
+          <div class="project-stats">
+            <div class="stat"><div class="number">10+</div><div class="label">File Types</div></div>
+            <div class="stat"><div class="number">0</div><div class="label">Paid Promo</div></div>
+            <div class="stat"><div class="number">5/5</div><div class="label">Perf Review</div></div>
+          </div>
+        </div>
+        <div class="project-visual">
+          <div style="font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--warm-mid);margin-bottom:0.4rem;">Art File Screening Results</div>
+          <div class="mock-file"><div class="dot" style="background:#4caf7d"></div>logo_final_v3.ai<span class="check">✓ Vector · CMYK · Print-ready</span></div>
+          <div class="mock-file"><div class="dot" style="background:var(--rust-light)"></div>shirt-artwork.png<span class="warn">⚠ Low res · RGB · Needs work</span></div>
+          <div class="mock-file"><div class="dot" style="background:#4caf7d"></div>embroidery_chest.dst<span class="check">✓ 8,420 stitches · Ready</span></div>
+          <div class="mock-file"><div class="dot" style="background:var(--rust-light)"></div>brand_guidelines.pdf<span class="warn">⚠ Spot colors detected</span></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="content-section services-section">
+      <div class="section-label">What I Do for You</div>
+      <div class="services-grid reveal">
+        <div class="service-item">
+          <div class="number">01</div>
+          <h3>Production Artwork</h3>
+          <p>File prep, vector cleanup, color separations, and decoration-method-specific setup for screen print, embroidery, sublimation, laser, and more. I know what "print-ready" actually means in promo.</p>
+        </div>
+        <div class="service-item">
+          <div class="number">02</div>
+          <h3>Workflow Automation</h3>
+          <p>I map your broken process, then build the automation that fixes it. Make.com, Zapier, Python, PowerShell. If it's repetitive and manual, it shouldn't be.</p>
+        </div>
+        <div class="service-item">
+          <div class="number">03</div>
+          <h3>Implementation & Ops</h3>
+          <p>New platform rollout, process documentation, system integration, training. I'm the person who makes sure the tool you bought actually gets used the way it was supposed to.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact-section">
+      <h2>Let's build<br>something <em>that works.</em></h2>
+      <p>Available for part-time remote contract work. Production art, workflow automation, creative ops, and implementation. If your team has a process that feels broken, I've probably seen it before — and fixed it.</p>
+      <div class="contact-links">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSex4ZaX_irg8e_Af0nSE--8wEFJ29gWQ2UtJnvYOB08nLzHrw/viewform?usp=publish-editor" target="_blank" class="btn-primary">Hire Me for Contract Work</a>
+        <a href="https://www.linkedin.com/in/sheila-aiworkflow/" target="_blank" class="btn-secondary">LinkedIn →</a>
+        <a href="https://github.com/Shernandez520" target="_blank" class="btn-secondary">GitHub →</a>
+      </div>
+    </section>
+
+    <footer>
+      <span>Sheila Hernandez — Creative Operations & Workflow Automation</span>
+      <span>Bradenton, FL · Remote · Available Now</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(el => { if (el.isIntersecting) el.target.classList.add('visible'); });
+  }, { threshold: 0.05 });
+  document.querySelectorAll('.reveal').forEach(el => {
+    observer.observe(el);
+    if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('visible');
+  });
+</script>
+</body>
+</html>
