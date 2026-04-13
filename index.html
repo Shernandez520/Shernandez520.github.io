@@ -44,30 +44,44 @@
 
     /* HEADER */
     header {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      background: var(--ink);
       position: relative;
       overflow: hidden;
     }
 
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--rust);
+    }
+
     .header-left {
-      background: var(--ink);
-      padding: 4rem 3rem 4rem 4rem;
+      padding: 5rem 6rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
       position: relative;
+      max-width: 900px;
     }
 
-    .header-left::after {
-      content: '';
+    .header-bg-number {
       position: absolute;
-      right: -2px;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: var(--rust);
+      right: 4rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'DM Serif Display', serif;
+      font-size: 22rem;
+      color: rgba(255,255,255,0.03);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
     }
 
     .headshot {
@@ -118,7 +132,7 @@
 
     h1 {
       font-family: 'DM Serif Display', serif;
-      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-size: clamp(4rem, 9vw, 8rem);
       color: var(--cream);
       line-height: 1.0;
       margin-bottom: 0.5rem;
@@ -665,10 +679,8 @@
 
     /* RESPONSIVE */
     @media (max-width: 900px) {
-      header { grid-template-columns: 1fr; min-height: auto; }
-      .header-left, .header-right { padding: 3rem 2rem; }
-      .header-left::after { display: none; }
-      .years-badge { display: none; }
+      header { min-height: auto; }
+      .header-left { padding: 3rem 2rem; }
       .about { grid-template-columns: 1fr; padding: 3rem 2rem; gap: 2rem; }
       .project-card { grid-template-columns: 1fr; }
       .exp-grid { grid-template-columns: 1fr; }
@@ -698,35 +710,7 @@
         <a href="https://artcheck.app" target="_blank" class="btn-secondary">See ArtCheck →</a>
       </div>
     </div>
-    <div class="header-right">
-      <div class="availability-badge">Available Now · Part-Time Remote</div>
-      <div class="skills-grid">
-        <div class="skill-card">
-          <div class="skill-icon">🎨</div>
-          <h3>Production Art</h3>
-          <p>Vector cleanup, file prep, color seps, decoration-method setup for promo & apparel</p>
-        </div>
-        <div class="skill-card">
-          <div class="skill-icon">⚙️</div>
-          <h3>Workflow Automation</h3>
-          <p>Make.com, Zapier, Python, PowerShell — processes that run without you</p>
-        </div>
-        <div class="skill-card">
-          <div class="skill-icon">🔧</div>
-          <h3>Implementation</h3>
-          <p>Bridging the gap between what systems do and what teams actually need</p>
-        </div>
-        <div class="skill-card">
-          <div class="skill-icon">🚀</div>
-          <h3>Creative Ops</h3>
-          <p>Supplier & distributor experience. I know this industry from both sides of the table.</p>
-        </div>
-      </div>
-      <div class="years-badge">
-        <div class="number">20+</div>
-        <div class="label">Years in Promo</div>
-      </div>
-    </div>
+    <div class="header-bg-number">20</div>
   </header>
 
   <!-- TESTIMONIAL -->
