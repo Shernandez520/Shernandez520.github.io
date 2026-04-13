@@ -21,6 +21,7 @@ TO_EMAIL           = "shernandez520@gmail.com"
 
 ADZUNA_APP_ID  = "c4bacdf2"
 ADZUNA_APP_KEY = "c1103b4cf305eae5b3b777b2d7e81512"
+USAJOBS_API_KEY = "h4UTqXIJr5vRYZmcMYw4/31S0hJ+Z3/CLoNapZYkrpY="
 
 SEARCH_QUERIES = [
     "production artist",
@@ -95,7 +96,43 @@ def search_adzuna(query: str) -> list[dict]:
     return jobs
 
 
-def gather_all_jobs() -> list[dict]:
+def search_usajobs(query: str) -> list[dict]:
+    """Search USAJobs with real API key."""
+    try:
+        eq = urllib.parse.quote(query)
+        url = f"https://data.usajobs.gov/api/search?Keyword={eq}&RemoteIndicator=True&ResultsPerPage=5&SortField=OpenDate&SortDirection=Desc"
+        req = urllib.request.Request(url, headers={
+            "User-Agent": "shernandez520@gmail.com",
+            "Authorization-Key": USAJOBS_API_KEY
+        })
+        with urllib.request.urlopen(req, timeout=12) as r:
+            data = json.loads(r.read().decode("utf-8"))
+        jobs = []
+        for item in data.get("SearchResult", {}).get("SearchResultItems", []):
+            pos   = item.get("MatchedObjectDescriptor", {})
+            title = pos.get("PositionTitle", "")
+            link  = pos.get("PositionURI", "")
+            org   = pos.get("OrganizationName", "")
+            rem   = pos.get("PositionRemuneration", [{}])[0]
+            pay   = f"${rem.get('MinimumRange','?')}–${rem.get('MaximumRange','?')} {rem.get('RateIntervalCode','')}"
+            sched = pos.get("PositionScheduleType", [{}])[0].get("Name", "")
+            close = pos.get("ApplicationCloseDate", "")[:10]
+            if title and link:
+                jobs.append({
+                    "title": title,
+                    "company": org,
+                    "location": "Remote (Federal)",
+                    "url": link,
+                    "description": f"{org} | {pay} | {sched} | Closes: {close}",
+                    "source": "USAJobs"
+                })
+        return jobs
+    except Exception as e:
+        print(f"USAJobs failed for '{query}': {e}")
+        return []
+
+
+
     seen = set()
     all_jobs = []
     for query in SEARCH_QUERIES:
@@ -103,6 +140,12 @@ def gather_all_jobs() -> list[dict]:
             if job["url"] not in seen:
                 seen.add(job["url"])
                 all_jobs.append(job)
+    for query in ["production artist", "workflow automation", "creative operations", "implementation analyst", "process automation"]:
+        for job in search_usajobs(query):
+            if job["url"] not in seen:
+                seen.add(job["url"])
+                all_jobs.append(job)
+        time.sleep(0.3)
     print(f"Found {len(all_jobs)} unique jobs")
     return all_jobs
 
