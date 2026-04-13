@@ -70,6 +70,18 @@
       background: var(--rust);
     }
 
+    .headshot {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center top;
+      border: 3px solid var(--rust);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.1s;
+    }
+
     .eyebrow {
       font-size: 0.7rem;
       letter-spacing: 0.25em;
@@ -583,6 +595,7 @@
   <!-- HEADER -->
   <header>
     <div class="header-left">
+      <img src="sheila.jpg" alt="Sheila Hernandez" class="headshot" />
       <p class="eyebrow">Available for Contract Work — Remote</p>
       <h1>Sheila<br><em>Hernandez</em></h1>
       <p class="header-tagline">Two decades in promotional products — supplier side, distributor side, and every broken workflow in between. I build the infrastructure that makes creative operations scale.</p>
