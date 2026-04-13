@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sheila Hernandez — Creative Operations & Workflow Automation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #1a1410;
+      --paper: #f5f0e8;
+      --rust: #c4581a;
+      --rust-light: #e8855a;
+      --warm-mid: #8c6a4f;
+      --warm-light: #d4b896;
+      --cream: #faf7f2;
+      --rule: #c8b8a2;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* GRAIN OVERLAY */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+
+    /* HEADER */
+    header {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-left {
+      background: var(--ink);
+      padding: 4rem 3rem 4rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .header-left::after {
+      content: '';
+      position: absolute;
+      right: -2px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--rust);
+    }
+
+    .eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--warm-light);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      color: var(--cream);
+      line-height: 1.0;
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--rust-light);
+    }
+
+    .header-tagline {
+      font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+      color: var(--warm-light);
+      margin-top: 1.5rem;
+      max-width: 380px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.6s;
+    }
+
+    .header-cta {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.8s;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 0.8rem 2rem;
+      background: var(--rust);
+      color: white;
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--rust-light);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      display: inline-block;
+      padding: 0.8rem 2rem;
+      border: 1px solid var(--warm-mid);
+      color: var(--warm-light);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--rust-light);
+      color: var(--rust-light);
+    }
+
+    .header-right {
+      background: var(--cream);
+      padding: 4rem 4rem 4rem 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .availability-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      border: 1px solid var(--rule);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--warm-mid);
+      margin-bottom: 2rem;
+      width: fit-content;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.5s;
+    }
+
+    .availability-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4caf7d;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.7s;
+    }
+
+    .skill-card {
+      background: white;
+      border: 1px solid var(--rule);
+      padding: 1.2rem;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .skill-card:hover {
+      border-color: var(--rust);
+      transform: translateY(-3px);
+    }
+
+    .skill-card .skill-icon {
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .skill-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1rem;
+      color: var(--ink);
+      margin-bottom: 0.3rem;
+    }
+
+    .skill-card p {
+      font-size: 0.75rem;
+      color: var(--warm-mid);
+      line-height: 1.5;
+    }
+
+    .years-badge {
+      position: absolute;
+      bottom: 3rem;
+      right: 3rem;
+      text-align: right;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1s;
+    }
+
+    .years-badge .number {
+      font-family: 'DM Serif Display', serif;
+      font-size: 5rem;
+      color: var(--rule);
+      line-height: 1;
+    }
+
+    .years-badge .label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--warm-mid);
+    }
+
+    /* SECTION SHARED */
+    section {
+      padding: 5rem 4rem;
+    }
+
+    .section-rule {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .section-rule .label {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--warm-mid);
+      white-space: nowrap;
+    }
+
+    .section-rule .line {
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ABOUT */
+    .about {
+      background: white;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .about-aside h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 1.1;
+      color: var(--ink);
+    }
+
+    .about-aside h2 em {
+      font-style: italic;
+      color: var(--rust);
+    }
+
+    .about-body p {
+      font-size: 1.05rem;
+      color: #3a3028;
+      margin-bottom: 1.2rem;
+      line-height: 1.8;
+    }
+
+    .about-body p strong {
+      color: var(--rust);
+      font-weight: 500;
+    }
+
+    .tools-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .tool-tag {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      padding: 0.3rem 0.8rem;
+      font-size: 0.75rem;
+      color: var(--warm-mid);
+      letter-spacing: 0.05em;
+    }
+
+    /* FEATURED PROJECT */
+    .project-section {
+      background: var(--ink);
+      color: var(--cream);
+    }
+
+    .project-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      background: #231e19;
+      border: 1px solid #3a3028;
+      padding: 3rem;
+    }
+
+    .project-card .project-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--rust-light);
+      margin-bottom: 1rem;
+    }
+
+    .project-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 3vw, 3rem);
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .project-card p {
+      color: var(--warm-light);
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+
+    .project-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      border-top: 1px solid #3a3028;
+      padding-top: 1.5rem;
+    }
+
+    .stat .number {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: var(--rust-light);
+    }
+
+    .stat .label {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--warm-mid);
+    }
+
+    .project-visual {
+      background: #2e271f;
+      border: 1px solid #3a3028;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .mock-file {
+      background: #1a1410;
+      border: 1px solid #3a3028;
+      padding: 0.8rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--warm-light);
+    }
+
+    .mock-file .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .mock-file .check {
+      margin-left: auto;
+      color: #4caf7d;
+      font-size: 0.75rem;
+    }
+
+    .mock-file .warn {
+      margin-left: auto;
+      color: var(--rust-light);
+      font-size: 0.75rem;
+    }
+
+    /* EXPERIENCE */
+    .experience {
+      background: var(--cream);
+    }
+
+    .exp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .exp-item {
+      border-top: 2px solid var(--rust);
+      padding-top: 1.5rem;
+    }
+
+    .exp-item .role {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem;
+      color: var(--ink);
+      margin-bottom: 0.3rem;
+    }
+
+    .exp-item .org {
+      font-size: 0.8rem;
+      color: var(--rust);
+      letter-spacing: 0.05em;
+      margin-bottom: 0.8rem;
+    }
+
+    .exp-item p {
+      font-size: 0.85rem;
+      color: var(--warm-mid);
+      line-height: 1.7;
+    }
+
+    /* SERVICES */
+    .services {
+      background: white;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border: 1px solid var(--rule);
+    }
+
+    .service-item {
+      padding: 2.5rem 2rem;
+      border-right: 1px solid var(--rule);
+      transition: background 0.2s ease;
+    }
+
+    .service-item:last-child { border-right: none; }
+
+    .service-item:hover {
+      background: var(--paper);
+    }
+
+    .service-item .number {
+      font-family: 'DM Serif Display', serif;
+      font-size: 3rem;
+      color: var(--rule);
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .service-item h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem;
+      color: var(--ink);
+      margin-bottom: 0.75rem;
+    }
+
+    .service-item p {
+      font-size: 0.85rem;
+      color: var(--warm-mid);
+      line-height: 1.7;
+    }
+
+    /* CONTACT */
+    .contact {
+      background: var(--ink);
+      text-align: center;
+      padding: 6rem 4rem;
+    }
+
+    .contact h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .contact h2 em {
+      font-style: italic;
+      color: var(--rust-light);
+    }
+
+    .contact p {
+      color: var(--warm-light);
+      max-width: 500px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.8;
+    }
+
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #0f0c0a;
+      padding: 1.5rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--warm-mid);
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      header { grid-template-columns: 1fr; min-height: auto; }
+      .header-left, .header-right { padding: 3rem 2rem; }
+      .header-left::after { display: none; }
+      .years-badge { display: none; }
+      .about { grid-template-columns: 1fr; padding: 3rem 2rem; gap: 2rem; }
+      .project-card { grid-template-columns: 1fr; }
+      .exp-grid { grid-template-columns: 1fr; }
+      .services-grid { grid-template-columns: 1fr; }
+      .service-item { border-right: none; border-bottom: 1px solid var(--rule); }
+      section { padding: 3rem 2rem; }
+      footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <p class="eyebrow">Available for Contract Work — Remote</p>
+      <h1>Sheila<br><em>Hernandez</em></h1>
+      <p class="header-tagline">I build the systems that make creative operations actually work — and I've been doing it for 20 years before anyone called it that.</p>
+      <div class="header-cta">
+        <a href="/cdn-cgi/l/email-protection#55263d30273b343b31302f606765153238343c397b363a38" class="btn-primary">Hire Me for Contract Work</a>
+        <a href="https://artcheck.streamlit.app" target="_blank" class="btn-secondary">See ArtCheck →</a>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="availability-badge">Available Now · Part-Time Remote</div>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <div class="skill-icon">🎨</div>
+          <h3>Production Art</h3>
+          <p>Vector cleanup, file prep, color seps, decoration-method setup for promo & apparel</p>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">⚙️</div>
+          <h3>Workflow Automation</h3>
+          <p>Make.com, Zapier, Python, PowerShell — processes that run without you</p>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">🔧</div>
+          <h3>Implementation</h3>
+          <p>Bridging the gap between what systems do and what teams actually need</p>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">🚀</div>
+          <h3>Creative Ops</h3>
+          <p>Supplier & distributor experience. I know this industry from both sides of the table.</p>
+        </div>
+      </div>
+      <div class="years-badge">
+        <div class="number">20+</div>
+        <div class="label">Years in Promo</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ABOUT -->
+  <section class="about">
+    <div class="about-aside reveal">
+      <h2>I translate between<br><em>technical</em><br>and human.</h2>
+    </div>
+    <div class="about-body reveal">
+      <p>I've spent over two decades in the promotional products industry — on the supplier side, the distributor side, and everywhere in between. I don't just understand the work; I understand <strong>why the work breaks</strong>, where the bottlenecks hide, and how to fix them in ways that actually stick.</p>
+      <p>I build automation tools, clean up art files, design workflows, and implement systems. I recently built and launched <strong>ArtCheck</strong> — a live SaaS tool for art file screening that's gaining organic traction in the promo industry — because I watched the same problem happen at every company I'd ever worked for and decided to solve it once.</p>
+      <p>That's how I work. I see the thing that's broken, I build the fix, and I make it repeatable. Available now for <strong>part-time remote contract engagements</strong>.</p>
+      <div class="tools-list">
+        <span class="tool-tag">Python</span>
+        <span class="tool-tag">PowerShell</span>
+        <span class="tool-tag">Make.com</span>
+        <span class="tool-tag">Zapier</span>
+        <span class="tool-tag">Streamlit</span>
+        <span class="tool-tag">Adobe Illustrator</span>
+        <span class="tool-tag">CorelDRAW</span>
+        <span class="tool-tag">ExtendScript</span>
+        <span class="tool-tag">NetSuite</span>
+        <span class="tool-tag">Promo Industry</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED PROJECT -->
+  <section class="project-section">
+    <div class="section-rule">
+      <span class="label" style="color: var(--warm-mid)">Featured Work</span>
+      <div class="line" style="background: #3a3028"></div>
+    </div>
+    <div class="project-card reveal">
+      <div>
+        <p class="project-label">Live SaaS Product</p>
+        <h3>ArtCheck</h3>
+        <p>An art file screening tool built for Sales and CS teams in the promotional products industry. Upload a file, get an instant readiness report — before it ever hits the art department. Supports vectors, rasters, PDFs, PSDs, CorelDRAW files, and more.</p>
+        <p>Built from scratch. Deployed on Streamlit Cloud. Getting organic traction via LinkedIn and industry groups with zero paid promotion.</p>
+        <a href="https://artcheck.streamlit.app" target="_blank" class="btn-primary" style="display:inline-block; margin-top: 0.5rem;">Try ArtCheck Live →</a>
+        <div class="project-stats">
+          <div class="stat">
+            <div class="number">10+</div>
+            <div class="label">File Types</div>
+          </div>
+          <div class="stat">
+            <div class="number">0</div>
+            <div class="label">Paid Promotion</div>
+          </div>
+          <div class="stat">
+            <div class="number">5/5</div>
+            <div class="label">Perf Review</div>
+          </div>
+        </div>
+      </div>
+      <div class="project-visual">
+        <div style="font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--warm-mid); margin-bottom: 0.5rem;">Art File Screening Results</div>
+        <div class="mock-file">
+          <div class="dot" style="background: #4caf7d"></div>
+          logo_final_v3.ai
+          <span class="check">✓ Vector · CMYK · Print-ready</span>
+        </div>
+        <div class="mock-file">
+          <div class="dot" style="background: var(--rust-light)"></div>
+          shirt-artwork.png
+          <span class="warn">⚠ Low res · RGB · Needs work</span>
+        </div>
+        <div class="mock-file">
+          <div class="dot" style="background: #4caf7d"></div>
+          embroidery_chest.dst
+          <span class="check">✓ 8,420 stitches · Ready</span>
+        </div>
+        <div class="mock-file">
+          <div class="dot" style="background: var(--rust-light)"></div>
+          brand_guidelines.pdf
+          <span class="warn">⚠ Spot colors detected</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="services">
+    <div class="section-rule reveal">
+      <span class="label">What I Do for You</span>
+      <div class="line"></div>
+    </div>
+    <div class="services-grid reveal">
+      <div class="service-item">
+        <div class="number">01</div>
+        <h3>Production Artwork</h3>
+        <p>File prep, vector cleanup, color separations, and decoration-method-specific setup for screen print, embroidery, sublimation, laser, and more. I know what "print-ready" actually means in promo.</p>
+      </div>
+      <div class="service-item">
+        <div class="number">02</div>
+        <h3>Workflow Automation</h3>
+        <p>I map your broken process, then build the automation that fixes it. Make.com, Zapier, Python, PowerShell. If it's repetitive and manual, it shouldn't be.</p>
+      </div>
+      <div class="service-item">
+        <div class="number">03</div>
+        <h3>Implementation & Ops</h3>
+        <p>New platform rollout, process documentation, system integration, training. I'm the person who makes sure the tool you bought actually gets used the way it was supposed to.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact">
+    <h2>Let's build<br>something <em>that works.</em></h2>
+    <p>Available for part-time remote contract work. Production art, workflow automation, creative ops, and implementation. If your team has a process that feels broken, I've probably seen it before — and fixed it.</p>
+    <div class="contact-links">
+      <a href="/cdn-cgi/l/email-protection#c4b7aca1b6aaa5aaa0a1bef1f6f484a3a9a5ada8eaa7aba9" class="btn-primary"><span class="__cf_email__" data-cfemail="9fecf7faedf1fef1fbfae5aaadafdff8f2fef6f3b1fcf0f2">[email&#160;protected]</span></a>
+      <a href="https://www.linkedin.com/in/sheila-aiworkflow/" target="_blank" class="btn-secondary">LinkedIn →</a>
+      <a href="https://github.com/Shernandez520" target="_blank" class="btn-secondary">GitHub →</a>
+    </div>
+  </section>
+
+  <footer>
+    <span>Sheila Hernandez — Creative Operations & Workflow Automation</span>
+    <span>Bradenton, FL · Remote · Available Now</span>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    // Scroll reveal
+    const observer = new Int
