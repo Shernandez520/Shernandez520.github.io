@@ -44,8 +44,9 @@ Sheila Hernandez — Contract Candidate Profile:
 - Built FINALIZER — internal batch automation suite at national distributor
 - Tools: Adobe Illustrator, Photoshop, InDesign, CorelDRAW, NetSuite, Streamlit, GitHub
 - 5/5 performance review (Exceptional), April 2026
-- Looking for: part-time remote contract work, $55/hr, open to within 20 miles of Bradenton FL (34209) or fully remote
+- Looking for: contract, full-time, OR temp-to-permanent remote work, $55/hr contract or $55-75k+ salary, open to within 20 miles of Bradenton FL (34209) or fully remote
 - Available immediately
+- Temp-to-perm and direct hire roles are welcome, not just contract
 """
 
 # ── INDEED RSS SEARCH ─────────────────────────────────────────────────────────
@@ -53,7 +54,7 @@ def search_indeed_rss(query: str, location: str = "remote") -> list[dict]:
     """Fetch jobs from Indeed RSS feed."""
     encoded_query = urllib.parse.quote(query)
     encoded_location = urllib.parse.quote(location)
-    url = f"https://www.indeed.com/rss?q={encoded_query}&l={encoded_location}&jt=contract&radius=20&sort=date"
+    url = f"https://www.indeed.com/rss?q={encoded_query}&l={encoded_location}&radius=20&sort=date"
     
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -129,10 +130,10 @@ JOBS TO EVALUATE:
 
 Score each job 1-10 for fit. Consider:
 - Remote or within 20 miles of Bradenton FL (34209)
-- Contract/freelance work (not full-time permanent)
+- Contract, full-time, OR temp-to-permanent (all welcome)
 - Matches her skills: production art, workflow automation, creative ops, implementation
-- Reasonable for $45-65/hr contract rate
-- Part-time friendly is a bonus
+- Reasonable for $55/hr contract or $55-75k+ salary full time
+- Part-time friendly is a bonus but not required
 
 Respond ONLY with valid JSON, no markdown, no explanation:
 [
