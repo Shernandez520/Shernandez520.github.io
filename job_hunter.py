@@ -133,6 +133,7 @@ def search_usajobs(query: str) -> list[dict]:
 
 
 
+def gather_all_jobs() -> list[dict]:
     seen = set()
     all_jobs = []
     for query in SEARCH_QUERIES:
