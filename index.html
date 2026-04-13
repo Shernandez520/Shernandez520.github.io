@@ -284,7 +284,63 @@
       color: var(--warm-mid);
     }
 
-    /* SECTION SHARED */
+    /* TESTIMONIAL */
+    .testimonial {
+      background: var(--rust);
+      padding: 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .testimonial::before {
+      content: '\201C';
+      position: absolute;
+      top: -2rem;
+      left: 2rem;
+      font-family: 'DM Serif Display', serif;
+      font-size: 18rem;
+      color: rgba(255,255,255,0.07);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .testimonial blockquote {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.3rem, 2.5vw, 2rem);
+      color: white;
+      line-height: 1.5;
+      max-width: 800px;
+      font-style: italic;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 1.5rem;
+    }
+
+    .testimonial cite {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      font-style: normal;
+    }
+
+    .rating-stars {
+      display: flex;
+      gap: 0.3rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .rating-stars span {
+      color: white;
+      font-size: 1.2rem;
+    }
+
+
     section {
       padding: 5rem 4rem;
     }
@@ -663,6 +719,17 @@
       </div>
     </div>
   </header>
+
+  <!-- TESTIMONIAL -->
+  <section class="testimonial">
+    <div class="rating-stars">
+      <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+    </div>
+    <blockquote>
+      "Sheila has shown initiative in refining automations that improved accuracy and reduced repetitive work. She has improved workflow, saved time and reduced errors. She maintains a cool head when dealing with challenges — communicative and collaborative on finding solutions."
+    </blockquote>
+    <cite>Direct Supervisor &nbsp;·&nbsp; 2026 Annual Performance Review &nbsp;·&nbsp; Overall Rating: 5/5 Exceptional</cite>
+  </section>
 
   <!-- ABOUT -->
   <section class="about">
