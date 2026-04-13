@@ -71,8 +71,8 @@
     }
 
     .headshot {
-      width: 140px;
-      height: 140px;
+      width: 170px;
+      height: 170px;
       border-radius: 50%;
       object-fit: cover;
       object-position: center top;
@@ -80,6 +80,30 @@
       margin-bottom: 1.5rem;
       opacity: 0;
       animation: fadeUp 0.8s ease forwards 0.1s;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.15s;
+    }
+
+    .social-links a {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--warm-mid);
+      text-decoration: none;
+      border-bottom: 1px solid var(--warm-mid);
+      padding-bottom: 1px;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .social-links a:hover {
+      color: var(--rust-light);
+      border-color: var(--rust-light);
     }
 
     .eyebrow {
@@ -596,6 +620,10 @@
   <header>
     <div class="header-left">
       <img src="sheila.jpg" alt="Sheila Hernandez" class="headshot" />
+      <div class="social-links">
+        <a href="https://www.linkedin.com/in/sheila-aiworkflow/" target="_blank">LinkedIn</a>
+        <a href="https://github.com/Shernandez520" target="_blank">GitHub</a>
+      </div>
       <p class="eyebrow">Available for Contract Work — Remote</p>
       <h1>Sheila<br><em>Hernandez</em></h1>
       <p class="header-tagline">Two decades in promotional products — supplier side, distributor side, and every broken workflow in between. I build the infrastructure that makes creative operations scale.</p>
