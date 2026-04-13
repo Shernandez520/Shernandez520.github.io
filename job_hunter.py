@@ -6,6 +6,7 @@ Searches for contract opportunities daily and emails a curated digest.
 import os
 import re
 import json
+import time
 import smtplib
 import urllib.request
 import urllib.parse
@@ -22,15 +23,18 @@ TO_EMAIL          = "shernandez520@gmail.com"
 
 # Job search queries — casting wide, Claude will score/filter
 SEARCH_QUERIES = [
-    "production artist remote contract",
-    "creative operations specialist remote",
-    "workflow automation specialist remote contract",
-    "implementation analyst remote contract",
-    "print production artist contract",
-    "creative ops manager remote",
-    "promotional products artwork remote",
-    "process automation specialist contract remote",
-    "art director production remote contract",
+    "production artist",
+    "creative operations",
+    "workflow automation",
+    "implementation analyst",
+    "print production",
+    "creative ops",
+    "process automation",
+    "graphic production artist",
+    "automation specialist",
+    "creative project manager",
+    "art operations",
+    "production coordinator remote",
 ]
 
 # Sheila's profile for Claude scoring
@@ -104,6 +108,7 @@ def gather_all_jobs() -> list[dict]:
             if job["link"] not in seen_links:
                 seen_links.add(job["link"])
                 all_jobs.append(job)
+        time.sleep(1)  # be polite to Indeed
     
     print(f"Found {len(all_jobs)} unique jobs before scoring")
     return all_jobs
