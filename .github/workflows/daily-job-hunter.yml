@@ -9,6 +9,8 @@ on:
 jobs:
   hunt:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repo
@@ -25,3 +27,11 @@ jobs:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: python job_hunter.py
+
+      - name: Save seen jobs
+        run: |
+          git config user.email "shernandez520@gmail.com"
+          git config user.name "Job Hunter Bot"
+          git add seen_jobs.json || true
+          git diff --staged --quiet || git commit -m "Update seen jobs"
+          git push || true

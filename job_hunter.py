@@ -18,6 +18,32 @@ ANTHROPIC_API_KEY  = os.environ["ANTHROPIC_API_KEY"]
 GMAIL_ADDRESS      = os.environ["GMAIL_ADDRESS"]
 GMAIL_APP_PASSWORD = os.environ["GMAIL_APP_PASSWORD"]
 TO_EMAIL           = "shernandez520@gmail.com"
+SEEN_JOBS_FILE     = "seen_jobs.json"
+
+def load_seen_jobs() -> set:
+    """Load previously seen job URLs from file."""
+    try:
+        with open(SEEN_JOBS_FILE, "r") as f:
+            data = json.load(f)
+            # Keep only last 500 URLs to prevent file bloat
+            return set(data[-500:])
+    except:
+        return set()
+
+def save_seen_jobs(seen: set):
+    """Save seen job URLs to file."""
+    try:
+        existing = []
+        try:
+            with open(SEEN_JOBS_FILE, "r") as f:
+                existing = json.load(f)
+        except:
+            pass
+        all_seen = list(set(existing) | seen)[-500:]
+        with open(SEEN_JOBS_FILE, "w") as f:
+            json.dump(all_seen, f)
+    except Exception as e:
+        print(f"Could not save seen jobs: {e}")
 
 ADZUNA_APP_ID  = "c4bacdf2"
 ADZUNA_APP_KEY = "c1103b4cf305eae5b3b777b2d7e81512"
@@ -267,11 +293,17 @@ def send_email(html_body: str, job_count: int):
 
 def main():
     print(f"Starting job hunt at {datetime.now()}")
+    seen_jobs   = load_seen_jobs()
     all_jobs    = gather_all_jobs()
-    scored_jobs = score_jobs_with_claude(all_jobs) if all_jobs else []
+    # Filter out jobs we've already sent
+    new_jobs    = [j for j in all_jobs if j["url"] not in seen_jobs]
+    print(f"{len(new_jobs)} new jobs after deduplication (filtered {len(all_jobs) - len(new_jobs)} repeats)")
+    scored_jobs = score_jobs_with_claude(new_jobs) if new_jobs else []
     apply_count = len([j for j in scored_jobs if j.get("flag") == "APPLY"])
-    html        = build_email_html(scored_jobs, len(all_jobs))
+    html        = build_email_html(scored_jobs, len(new_jobs))
     send_email(html, apply_count)
+    # Save all seen URLs so we don't repeat tomorrow
+    save_seen_jobs({j["url"] for j in all_jobs})
     print("Done!")
 
 if __name__ == "__main__":
